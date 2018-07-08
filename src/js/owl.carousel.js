@@ -861,7 +861,26 @@
 
 		if (delta.x !== 0 && this.is('dragging') || !this.is('valid')) {
 			this.speed(this.settings.dragEndSpeed || this.settings.smartSpeed);
-			this.current(this.closest(stage.x, delta.x !== 0 ? direction : this._drag.direction));
+			
+			var nextIndex = this.closest(stage.x, delta.x !== 0 ? direction : this._drag.direction);
+			if (this.settings.slideBy === 'page') {
+				var currentIndex = this.current();
+				var slideBy = this.settings.items;
+				var lastIndex = this._items.length - slideBy;
+				var cmod = currentIndex % slideBy;
+				if (cmod > 0 && direction !== 'left') {
+					currentIndex=currentIndex+cmod;
+					nextIndex=currentIndex-1;
+				}
+				var indexDiff = nextIndex - currentIndex;
+				var mod = (Math.abs(indexDiff) % slideBy);
+				if (mod > 0) {
+					nextIndex = (indexDiff > 0) ? (nextIndex + mod) : (nextIndex - mod);
+					if (nextIndex > lastIndex) nextIndex = lastIndex;
+				}
+			}
+			this.current(nextIndex)
+
 			this.invalidate('position');
 			this.update();
 
